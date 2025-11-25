@@ -13,7 +13,7 @@
   html,body{height:100%;margin:0;background:var(--bg);color:#fff;font-family:Inter,Arial,Helvetica,sans-serif}
   .app{ max-width:980px;margin:12px auto;padding:12px; display:grid;grid-template-columns:1fr 360px;gap:12px; }
   @media (max-width:900px){ .app{ grid-template-columns:1fr; padding:8px } }
-  .panel{ background:linear-gradient(180deg,#070708 0%, var(--panel) 100%); border-radius:12px;padding:12px;box-shadow:0 6px 20px rgba(0,0,0,0.6); }
+  .panel{ background:linear-gradient(180deg,#070708 0%, var(--panel) 100%); border-radius:12px;padding:12px;box-shadow:0 6px 20px rgba(0,0,0,0.6); position:relative; }
   .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
   .saldo { font-weight:700;color:var(--green) }
   .chart-wrap{ position:relative; background:#000;border-radius:10px;padding:8px; }
@@ -44,75 +44,38 @@
   #timeLine{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:#ff4444;font-weight:bold;padding:0 6px}
   #timeLine span{flex:1;text-align:center;opacity:0.85}
   #timeLine span:last-child{opacity:1;color:#fff;font-weight:900}
+
+  /* Sim buttons */
+  .sim-controls { display:flex; gap:8px; justify-content:center; margin-top:12px; flex-wrap:wrap; }
+  .sim-btn { padding:8px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:700; color:#fff }
+  .sim-win { background:linear-gradient(135deg,#4caf50,#2ecc71) }
+  .sim-lose { background:linear-gradient(135deg,#e53935,#c0392b) }
+  .sim-normal { background:#666 }
+  .sim-notice { text-align:center; margin-top:8px; color:#ffd54f; font-weight:700; }
+
+  /* Watermark */
+  .sim-watermark { position:absolute; top:12px; left:50%; transform:translateX(-50%); background:#f1c40f;color:#000;padding:6px 10px;border-radius:8px;font-weight:800;font-size:13px; z-index:40 }
 </style>
 </head>
 <body>
+
 <!-- LOGIN SCREEN -->
 <div id="loginScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;color:#fff;font-family:Inter">
   <h1 style="margin-bottom:20px;font-size:32px;font-weight:800">TREDIO</h1>
   <div style="background:#111217;padding:20px;border-radius:12px;width:320px;box-shadow:0 0 20px rgba(0,0,0,0.5)">
-    
-    <input 
-      id="loginUser" 
-      placeholder="Username"
-      style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:none;background:#0b0b0b;color:white" 
-    />
-
-    <input 
-      id="loginPass" 
-      placeholder="Password" 
-      type="password"
-      style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:none;background:#0b0b0b;color:white" 
-    />
-
-    <button id="btnLogin" style="width:100%;padding:10px;border:none;border-radius:8px;background:#2ecc71;font-weight:700;color:#fff;cursor:pointer">
-      LOGIN
-    </button>
-
-    <div id="loginError" style="margin-top:10px;color:#e74c3c;font-size:14px;display:none">
-      Username / Password salah!
-    </div>
-
+    <input id="loginUser" placeholder="Username" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:none;background:#0b0b0b;color:white" />
+    <input id="loginPass" placeholder="Password" type="password" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:none;background:#0b0b0b;color:white" />
+    <button id="btnLogin" style="width:100%;padding:10px;border:none;border-radius:8px;background:#2ecc71;font-weight:700;color:#fff;cursor:pointer">LOGIN</button>
+    <div id="loginError" style="margin-top:10px;color:#e74c3c;font-size:14px;display:none">Username / Password salah!</div>
   </div>
 </div>
-
-<script>
-// HASH username & password agar teks asli TIDAK bisa dibaca
-// Username asli = TRADER2025
-// Password asli = 2025
-
-const USER_HASH = "f3a570a36e";  
-const PASS_HASH = "01a3dfca9c";
-
-// fungsi hashing sederhana
-function hash(t){
-    let h = 0;
-    for (let i = 0; i < t.length; i++) {
-        h = (h << 5) - h + t.charCodeAt(i);
-        h &= h;
-    }
-    return Math.abs(h).toString(16);
-}
-
-document.getElementById("btnLogin").onclick = function(){
-
-    let user = document.getElementById("loginUser").value.trim();
-    let pass = document.getElementById("loginPass").value.trim();
-
-    if(hash(user) === USER_HASH && hash(pass) === PASS_HASH){
-        document.getElementById("loginError").style.display = "none";
-        document.getElementById("loginScreen").style.display = "none";
-    } 
-    else {
-        document.getElementById("loginError").style.display = "block";
-    }
-};
-</script>
-
 
 <!-- MAIN APP -->
 <div class="app" style="display:none" id="mainApp">
   <div class="panel">
+
+    <!-- Watermark to indicate this is a simulation for education -->
+    <div class="sim-watermark">SIMULASI EDUKASI — BUKAN TRADING ASLI</div>
 
     <div class="header">
       <div>
@@ -197,6 +160,15 @@ document.getElementById("btnLogin").onclick = function(){
           <div>Hasil terakhir: <span id="lastResult">-</span></div>
           <div>Harga Tutup (last): <span id="txtClose">-</span></div>
         </div>
+
+        <!-- SIMULATION CONTROLS: tidak mengganggu elemen lain -->
+        <div class="sim-controls" style="margin-top:12px">
+          <button id="modeNormal" class="sim-btn sim-normal">Mode Normal</button>
+          <button id="modeWin" class="sim-btn sim-win">Mode Selalu Menang (Simulasi)</button>
+          <button id="modeLose" class="sim-btn sim-lose">Mode Selalu Kalah (Simulasi)</button>
+        </div>
+        <div id="simNotice" class="sim-notice">MODE: NORMAL (Perilaku asli tetap aktif)</div>
+
       </div>
 
     </div>
@@ -223,6 +195,12 @@ window.addEventListener('DOMContentLoaded', ()=>{
   const statusBox = document.getElementById('statusBox');
   const intervalSelect = document.getElementById('intervalSelect');
   const soundToggle = document.getElementById('soundToggle');
+
+  // simulation controls
+  const modeNormalBtn = document.getElementById('modeNormal');
+  const modeWinBtn = document.getElementById('modeWin');
+  const modeLoseBtn = document.getElementById('modeLose');
+  const simNotice = document.getElementById('simNotice');
 
   btnLogin.addEventListener('click', ()=>{
     loginScreen.style.display = 'none';
@@ -288,56 +266,34 @@ window.addEventListener('DOMContentLoaded', ()=>{
     return +(getBaseMinute() + (Math.random()-0.5)*0.03);
   }
 
- // SOUND TOGGLE (default: OFF)
-let audioCtx = null;
-let soundEnabled = false;
+  // SOUND TOGGLE
+  let audioCtx=null, soundEnabled=true;
+  soundToggle.addEventListener('click', ()=>{
+    soundEnabled = !soundEnabled;
+    soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+  });
 
-// Pastikan tombol menampilkan icon OFF saat load
-soundToggle.textContent = "🔇";
-
-soundToggle.addEventListener("click", () => {
-  soundEnabled = !soundEnabled;
-  soundToggle.textContent = soundEnabled ? "🔊" : "🔇";
-});
-
-// Fungsi suara "tick"
-function playTick() {
-  if (!soundEnabled) return;
-
-  try {
-    if (!audioCtx)
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-
-    o.type = "sine";
-    o.frequency.setValueAtTime(1000, audioCtx.currentTime);
-    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.06, audioCtx.currentTime + 0.01);
-
-    o.connect(g);
-    g.connect(audioCtx.destination);
-
-    o.start();
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.12);
-    o.stop(audioCtx.currentTime + 0.15);
-  } catch (e) {}
-}
-
-// Contoh update grafik (punya kamu)
-let labelCounter = 0;
-function pushPoint(h) {
-  chart.data.labels.push(labelCounter++);
-  chart.data.datasets[0].data.push(h);
-
-  if (chart.data.labels.length > 120) {
-    chart.data.labels.shift();
-    chart.data.datasets[0].data.shift();
+  function playTick(){
+    if(!soundEnabled) return;
+    try{
+      if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.type='sine'; o.frequency.setValueAtTime(1000,audioCtx.currentTime);
+      g.gain.setValueAtTime(0.0001,audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.06,audioCtx.currentTime+0.01);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.12);
+      o.stop(audioCtx.currentTime+0.15);
+    }catch(e){}
   }
 
-  chart.update("none");
-}
+  let labelCounter=0;
+  function pushPoint(h){
+    chart.data.labels.push(labelCounter++);
+    chart.data.datasets[0].data.push(h);
+    if(chart.data.labels.length>120){chart.data.labels.shift();chart.data.datasets[0].data.shift();}
+    chart.update('none');
+  }
 
   // SMOOTH ANIMATION (requestAnimationFrame)
   let smoothTarget = null;
@@ -379,14 +335,12 @@ function pushPoint(h) {
     const cur = chart.data.datasets[0].data.slice(-1)[0] || getBaseMinute();
     let final;
     const offset = 0.03 + Math.random()*0.04; // 0.03 - 0.07
-
-if(dir === 'naik'){
-  final = currentPrice + offset;  // user selalu menang
-} else {
-  final = currentPrice - offset;  // user selalu menang
-}
-
-startSmoothLoss(final);
+    if(dir === 'naik'){
+      final = (openPrice != null ? openPrice : cur) - offset;
+    } else {
+      final = (openPrice != null ? openPrice : cur) + offset;
+    }
+    startSmoothLoss(final);
     return final;
   }
 
@@ -400,6 +354,23 @@ startSmoothLoss(final);
 
   /* ============= TRADING LOGIC ============= */
   let tradingActive=false, openPrice=null, openIndex=null, closeIndex=null, countdown=60, timer=null, chosenAmount=0;
+
+  // SIMULATION MODE: "normal" (default), "win", "lose"
+  let simMode = "normal";
+
+  // wire sim buttons
+  modeNormalBtn.addEventListener('click', ()=>{
+    simMode = "normal";
+    simNotice.textContent = "MODE: NORMAL (Perilaku asli tetap aktif)";
+  });
+  modeWinBtn.addEventListener('click', ()=>{
+    simMode = "win";
+    simNotice.textContent = "MODE SIMULASI: USER SELALU MENANG (EDUKASI)";
+  });
+  modeLoseBtn.addEventListener('click', ()=>{
+    simMode = "lose";
+    simNotice.textContent = "MODE SIMULASI: USER SELALU KALAH (EDUKASI)";
+  });
 
   function pickAmount(){
     const q = Number(quickAmount.value || 0);
@@ -459,18 +430,34 @@ startSmoothLoss(final);
       if(countdown <= 0){
         clearInterval(timer); timer = null;
 
-        // at final, force a loss (opposite direction)
-        const final = forceLoss(dir);
+        // --- FINALIZATION: respect simMode ---
+        let final;
+        if(simMode === "win"){
+          // produce favorable final price
+          const base = (openPrice != null ? openPrice : chart.data.datasets[0].data.slice(-1)[0] || getBaseMinute());
+          const offset = 0.03 + Math.random()*0.04;
+          final = (dir === 'naik') ? (base + offset) : (base - offset);
+          startSmoothLoss(final); // animate to final
+          // apply win: credit saldo (simple 1:1 for demo). You can adjust payout logic if desired.
+          saldo += chosenAmount;
+          statusBox.classList.remove('result-lose');
+          statusBox.classList.add('result-win');
+          statusBox.textContent = `MENANG +${formatIDR(chosenAmount)} — ${final.toFixed(3)}`;
+          lastResult.textContent = 'MENANG';
+        } else {
+          // simMode === "lose" or "normal" -> keep original behavior (loss)
+          final = forceLoss(dir); // this animates towards unfavorable final
+          // apply loss: debit saldo
+          saldo -= chosenAmount;
+          statusBox.classList.remove('result-win');
+          statusBox.classList.add('result-lose');
+          statusBox.textContent = `KALAH -${formatIDR(chosenAmount)} — ${final.toFixed(3)}`;
+          lastResult.textContent = 'KALAH';
+        }
 
-        // apply result: always loss at final
-        saldo -= chosenAmount;
-        statusBox.classList.remove('result-win');
-        statusBox.classList.add('result-lose');
-        statusBox.textContent = `KALAH -${formatIDR(chosenAmount)} — ${final.toFixed(3)}`;
-        lastResult.textContent = 'KALAH';
-
+        // update UI
         saldoText.textContent = formatIDR(saldo);
-        txtClose.textContent = final.toFixed(3);
+        txtClose.textContent = final ? final.toFixed(3) : '-';
 
         closeIndex = chart.data.labels.length - 1;
         chart.options.plugins.customOverlay.closeIndex = closeIndex;
