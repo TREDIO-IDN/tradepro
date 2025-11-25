@@ -32,7 +32,13 @@
   .btn-up{ background:linear-gradient(135deg,var(--green),#27ae60) }
   .btn-down{ background:linear-gradient(135deg,var(--red),#c0392b) }
   .btn:disabled{ opacity:.5; cursor:not-allowed }
-  .status { margin-top:8px;padding:10px;border-radius:8px;background:#070708;text-align:center;font-weight:700 }
+  .status {
+    background: none !important;
+    background-color: transparent !important;
+    color: inherit !important;
+    border: none !important;
+    box-shadow: none !important;
+}
   .result-win{ color:var(--green); font-weight:900 }
   .result-lose{ color:var(--red); font-weight:900 }
   .small-muted{ color:#9aa0a6; font-size:13px }
@@ -165,7 +171,6 @@
           <button id="modeWin" class="sim-btn sim-win">Mode Selalu Menang (Simulasi)</button>
           <button id="modeLose" class="sim-btn sim-lose">Mode Selalu Kalah (Simulasi)</button>
         </div>
-        <div id="simNotice" class="sim-notice">MODE: NORMAL (Perilaku asli tetap aktif)</div>
 
       </div>
 
