@@ -72,8 +72,10 @@
 
 <!-- MAIN APP -->
 <div class="app" style="display:none" id="mainApp">
-   <div class="panel">
-  <div class="header">
+  <div class="panel">
+
+
+    <div class="header">
       <div>
         <div style="font-size:14px;color:#ddd">Harga Batubara Premium</div>
 
@@ -159,9 +161,9 @@
 
         <!-- SIMULATION CONTROLS: tidak mengganggu elemen lain -->
         <div class="sim-controls" style="margin-top:12px">
-          <button id="modeNormal" class="sim-btn sim-normal">n</button>
-          <button id="modeWin" class="sim-btn sim-win">m</button>
-          <button id="modeLose" class="sim-btn sim-lose">k</button>
+          <button id="modeNormal" class="sim-btn sim-normal">Mode Normal</button>
+          <button id="modeWin" class="sim-btn sim-win">Mode Selalu Menang (Simulasi)</button>
+          <button id="modeLose" class="sim-btn sim-lose">Mode Selalu Kalah (Simulasi)</button>
         </div>
         <div id="simNotice" class="sim-notice">MODE: NORMAL (Perilaku asli tetap aktif)</div>
 
@@ -357,15 +359,15 @@ window.addEventListener('DOMContentLoaded', ()=>{
   // wire sim buttons
   modeNormalBtn.addEventListener('click', ()=>{
     simMode = "normal";
-    simNotice.textContent = "MODE: NORMAL (Perilaku asli tetap aktif)";
+    simNotice.textContent = "n";
   });
   modeWinBtn.addEventListener('click', ()=>{
     simMode = "win";
-    simNotice.textContent = "MODE SIMULASI: USER SELALU MENANG (EDUKASI)";
+    simNotice.textContent = "m";
   });
   modeLoseBtn.addEventListener('click', ()=>{
     simMode = "lose";
-    simNotice.textContent = "MODE SIMULASI: USER SELALU KALAH (EDUKASI)";
+    simNotice.textContent = "k)";
   });
 
   function pickAmount(){
